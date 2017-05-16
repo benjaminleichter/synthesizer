@@ -5,6 +5,10 @@ import { IMonophonicSynthesizer } from '../models/interfaces/IMonophonicSynthesi
 
 export interface IMonophonicSynthesizerProps extends IMonophonicSynthesizer {
     setCarrierFrequency : (frequency : number) => void;
+    setAttack : (value : number) => void;
+    setDecay : (value : number) => void;
+    setSustain : (value : number) => void;
+    setRelease : (value : number) => void;
 }
 export interface IMonophonicSynthesizerState {
     carrier : OscillatorNode;
@@ -38,6 +42,10 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
         this.handleChangeFrequency = this.handleChangeFrequency.bind(this);
         this.handleNoteOn = this.handleNoteOn.bind(this);
         this.handleNoteOff = this.handleNoteOff.bind(this);
+        this.handleChangeAttackValue = this.handleChangeAttackValue.bind(this);
+        this.handleChangeDecayValue = this.handleChangeDecayValue.bind(this);
+        this.handleChangeSustainValue = this.handleChangeSustainValue.bind(this);
+        this.handleChangeReleaseValue = this.handleChangeReleaseValue.bind(this);
     }
     public componentWillMount() {
         const { gain, modulationDepth, oscillator } = this.props;
@@ -68,17 +76,73 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
         this.audioContext.close();
     }
     public render() {
+        const { envelope } = this.props;
         const frequency = this.props.oscillator.getFrequency();
         return (
             <div className="oscillator">
-                { `${ frequency }hZ` }
-                <input
-                    type="range"
-                    min="0"
-                    max="1000"
-                    onChange={ this.handleChangeFrequency }
-                    value={ frequency }
-                />
+                <div className="synth-control">
+                    <label htmlFor="frequency-input">Frequency</label>
+                    <input
+                        id="frequency-input"
+                        type="range"
+                        min="0"
+                        max="1000"
+                        onChange={ this.handleChangeFrequency }
+                        value={ frequency }
+                    />
+                    <span className="control-value">{ `${ frequency }hZ` }</span>
+                </div>
+                <div className="synth-control-group">
+                    <p className="control-group-title">Envelope</p>
+                    <div className="synth-control">
+                        <label htmlFor="attack-input">Attack</label>
+                        <input
+                            id="attack-input"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={ envelope.getAttack() * 100 }
+                            onChange={ this.handleChangeAttackValue }
+                        />
+                        <span className="control-value">{ `${ envelope.getAttack() }` }</span>
+                    </div>
+                    <div className="synth-control">
+                        <label htmlFor="decay-input">Decay</label>
+                        <input
+                            id="decay-input"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={ envelope.getDecay() * 100 }
+                            onChange={ this.handleChangeDecayValue }
+                        />
+                        <span className="control-value">{ `${ envelope.getDecay() }` }</span>
+                    </div>
+                    <div className="synth-control">
+                        <label htmlFor="sustain-input">Sustain</label>
+                        <input
+                            id="sustain-input"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={ envelope.getSustain() * 100 }
+                            onChange={ this.handleChangeSustainValue }
+                        />
+                        <span className="control-value">{ `${ envelope.getSustain() }` }</span>
+                    </div>
+                    <div className="synth-control">
+                        <label htmlFor="release-input">Release</label>
+                        <input
+                            id="release-input"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={ envelope.getRelease() * 100 }
+                            onChange={ this.handleChangeReleaseValue }
+                        />
+                        <span className="control-value">{ `${ envelope.getRelease() }` }</span>
+                    </div>
+                </div>
                 <button
                     onMouseDown={ this.handleNoteOn }
                     onMouseUp={ this.handleNoteOff }
@@ -95,13 +159,33 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
         this.props.setCarrierFrequency(frequency);
     }
 
+    private handleChangeAttackValue(event : React.ChangeEvent<HTMLInputElement>) {
+        const value = parseInt(event.target.value, 10) / 100;
+        this.props.setAttack(value);
+    }
+
+    private handleChangeDecayValue(event : React.ChangeEvent<HTMLInputElement>) {
+        const value = parseInt(event.target.value, 10) / 100;
+        this.props.setDecay(value);
+    }
+
+    private handleChangeSustainValue(event : React.ChangeEvent<HTMLInputElement>) {
+        const value = parseInt(event.target.value, 10) / 100;
+        this.props.setSustain(value);
+    }
+
+    private handleChangeReleaseValue(event : React.ChangeEvent<HTMLInputElement>) {
+        const value = parseInt(event.target.value, 10) / 100;
+        this.props.setRelease(value);
+    }
+
     private handleNoteOn() {
         const now = this.audioContext.currentTime;
         const carrierGain = this.state.carrierGain;
         const envelope = this.props.envelope;
 
         carrierGain.gain.cancelScheduledValues(0);
-        carrierGain.gain.setValueAtTime(0, now);
+        carrierGain.gain.setValueAtTime(carrierGain.gain.value, now);
 
         carrierGain.gain.linearRampToValueAtTime(1, now + envelope.getAttack());
         carrierGain.gain.linearRampToValueAtTime(envelope.getSustain(), now + envelope.getAttack() + envelope.getDecay());

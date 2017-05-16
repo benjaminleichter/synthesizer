@@ -21,6 +21,10 @@ export class App extends React.Component<IConnectedApp, {}> {
         super();
 
         this.handleSetSynthesizerFrequencyById = this.handleSetSynthesizerFrequencyById.bind(this);
+        this.handleSetSynthesizerAttackById = this.handleSetSynthesizerAttackById.bind(this);
+        this.handleSetSynthesizerDecayById = this.handleSetSynthesizerDecayById.bind(this);
+        this.handleSetSynthesizerSustainById = this.handleSetSynthesizerSustainById.bind(this);
+        this.handleSetSynthesizerReleaseById = this.handleSetSynthesizerReleaseById.bind(this);
     }
     public render() {
         const { synthesizersById } = this.props;
@@ -39,6 +43,10 @@ export class App extends React.Component<IConnectedApp, {}> {
                     synthesizer.envelope.getRelease());
 
                 const setCarrierFrequency = (frequency : number) => this.handleSetSynthesizerFrequencyById(id, frequency);
+                const setAttack = (value : number) => this.handleSetSynthesizerAttackById(id, value);
+                const setDecay = (value : number) => this.handleSetSynthesizerDecayById(id, value);
+                const setSustain = (value : number) => this.handleSetSynthesizerSustainById(id, value);
+                const setRelease = (value : number) => this.handleSetSynthesizerReleaseById(id, value);
                 return (
                     <MonophonicSynthesizer
                         key={ id }
@@ -47,6 +55,10 @@ export class App extends React.Component<IConnectedApp, {}> {
                         modulationDepth={ synthesizer.modulationDepth }
                         oscillator={ oscillator }
                         setCarrierFrequency={ setCarrierFrequency }
+                        setAttack={ setAttack }
+                        setDecay={ setDecay }
+                        setSustain={ setSustain }
+                        setRelease={ setRelease }
                     />
                 )
             }
@@ -59,6 +71,18 @@ export class App extends React.Component<IConnectedApp, {}> {
     }
     private handleSetSynthesizerFrequencyById(id : string, frequency : number) {
         this.props.dispatch(ActionCreators.setSynthesizerFrequencyById(id, frequency));
+    }
+    private handleSetSynthesizerAttackById(id : string, value : number) {
+        this.props.dispatch(ActionCreators.setSynthesizerAttackById(id, value));
+    }
+    private handleSetSynthesizerDecayById(id : string, value : number) {
+        this.props.dispatch(ActionCreators.setSynthesizerDecayById(id, value));
+    }
+    private handleSetSynthesizerSustainById(id : string, value : number) {
+        this.props.dispatch(ActionCreators.setSynthesizerSustainById(id, value));
+    }
+    private handleSetSynthesizerReleaseById(id : string, value : number) {
+        this.props.dispatch(ActionCreators.setSynthesizerReleaseById(id, value));
     }
 }
 const mapStateToProps = (state : {appState : IApp}) => ({

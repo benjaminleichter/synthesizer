@@ -2,15 +2,19 @@ import 'babel-polyfill';
 
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
-import { combineReducers } from 'redux';
+import { applyMiddleware, combineReducers, createStore } from 'redux';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
 
-import { Provider } from './typescript/components/Provider';
 import { ConnectedApp } from './typescript/App';
 
 import { reducers } from './typescript/reducers';
 
-const appReducers = combineReducers({appState: reducers});
+const appReducers = combineReducers({ appState: reducers });
+const store = createStore(appReducers, applyMiddleware(thunk));
 ReactDom.render(
-    <Provider appReducers={ appReducers } services={{}} target={ ConnectedApp } />,
+    <Provider store={ createStore(appReducers) }>
+        <ConnectedApp />
+    </Provider>,
     document.getElementById('app'),
 )
