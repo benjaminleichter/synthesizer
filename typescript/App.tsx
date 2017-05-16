@@ -54,7 +54,7 @@ export class App extends React.Component<IConnectedApp, {}> {
                         gain={ synthesizer.gain }
                         modulationDepth={ synthesizer.modulationDepth }
                         oscillator={ oscillator }
-                        setCarrierFrequency={ setCarrierFrequency }
+                        octave={ synthesizer.octave }
                         setAttack={ setAttack }
                         setDecay={ setDecay }
                         setSustain={ setSustain }

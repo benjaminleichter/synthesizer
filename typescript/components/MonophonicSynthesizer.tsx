@@ -4,7 +4,6 @@ import { Oscillator } from '../models/classes/Oscillator';
 import { IMonophonicSynthesizer } from '../models/interfaces/IMonophonicSynthesizer';
 
 export interface IMonophonicSynthesizerProps extends IMonophonicSynthesizer {
-    setCarrierFrequency : (frequency : number) => void;
     setAttack : (value : number) => void;
     setDecay : (value : number) => void;
     setSustain : (value : number) => void;
@@ -39,7 +38,6 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
             modulationGain: this.modulationGain
         };
 
-        this.handleChangeFrequency = this.handleChangeFrequency.bind(this);
         this.handleNoteOn = this.handleNoteOn.bind(this);
         this.handleNoteOff = this.handleNoteOff.bind(this);
         this.handleChangeAttackValue = this.handleChangeAttackValue.bind(this);
@@ -78,20 +76,19 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
     public render() {
         const { envelope } = this.props;
         const frequency = this.props.oscillator.getFrequency();
+
+        const keyElements : Array<JSX.Element> = [];
+        for (let i = 0; i < 12; i++) {
+            keyElements.push((
+                <button
+                    key={ i }
+                    onMouseDown={ () => this.handleNoteOn(i) }
+                    onMouseUp={ this.handleNoteOff }
+                />
+            ))
+        }
         return (
             <div className="oscillator">
-                <div className="synth-control">
-                    <label htmlFor="frequency-input">Frequency</label>
-                    <input
-                        id="frequency-input"
-                        type="range"
-                        min="0"
-                        max="1000"
-                        onChange={ this.handleChangeFrequency }
-                        value={ frequency }
-                    />
-                    <span className="control-value">{ `${ frequency }hZ` }</span>
-                </div>
                 <div className="synth-control-group">
                     <p className="control-group-title">Envelope</p>
                     <div className="synth-control">
@@ -143,20 +140,11 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
                         <span className="control-value">{ `${ envelope.getRelease() }` }</span>
                     </div>
                 </div>
-                <button
-                    onMouseDown={ this.handleNoteOn }
-                    onMouseUp={ this.handleNoteOff }
-                />
+                <div className="keys">
+                    { keyElements }
+                </div>
             </div>
         )
-    }
-    private handleChangeFrequency(event : React.ChangeEvent<HTMLInputElement>) {
-        const frequency = parseInt(event.target.value, 10);
-        const carrier = this.state.carrier;
-        carrier.frequency.value = frequency;
-
-        this.setState({ carrier });
-        this.props.setCarrierFrequency(frequency);
     }
 
     private handleChangeAttackValue(event : React.ChangeEvent<HTMLInputElement>) {
@@ -179,13 +167,17 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
         this.props.setRelease(value);
     }
 
-    private handleNoteOn() {
+    private handleNoteOn(note : number) {
         const now = this.audioContext.currentTime;
         const carrierGain = this.state.carrierGain;
         const envelope = this.props.envelope;
 
+        const frequency = 440 * Math.pow(Math.pow(2, 1/12), note);
+        this.state.carrier.frequency.linearRampToValueAtTime(frequency, now);
+
         carrierGain.gain.cancelScheduledValues(0);
         carrierGain.gain.setValueAtTime(carrierGain.gain.value, now);
+
 
         carrierGain.gain.linearRampToValueAtTime(1, now + envelope.getAttack());
         carrierGain.gain.linearRampToValueAtTime(envelope.getSustain(), now + envelope.getAttack() + envelope.getDecay());

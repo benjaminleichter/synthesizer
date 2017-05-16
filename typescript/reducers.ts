@@ -15,28 +15,9 @@ const initialState : IApp = {
             gain: 0.5,
             modulationDepth: 100,
             oscillator: new Oscillator(440, 0, 'sine'),
+            octave: 0,
         },
     }
-}
-
-export const reduceSetSynthesizerFrequencyById = (
-    state : IApp,
-    action : ActionInterfaces.ISetSynthesizerFrequencyByIdAction,
-) : IApp => {
-    const newState = { ...state };
-    const synthesizerId = action.payload.id;
-    newState.synthesizersById = { ...newState.synthesizersById };
-
-    const synthesizer = { ...newState.synthesizersById[synthesizerId] };
-    if (synthesizer !== null) {
-        synthesizer.oscillator = new Oscillator(
-            action.payload.frequency,
-            synthesizer.oscillator.getGainModulationRate(),
-            synthesizer.oscillator.getWaveform());
-
-        newState.synthesizersById[synthesizerId] = synthesizer;
-    }
-    return newState;
 }
 
 export const reduceSetSynthesizerAttackById = (
@@ -129,11 +110,6 @@ export const reduceSetSynthesizerReleaseById = (
 
 export const reducers = (state : IApp = initialState, action : IAction) => {
     switch (action.type) {
-        case ActionTypes.SET_SYNTHESIZER_FREQUENCY_BY_ID:
-            return reduceSetSynthesizerFrequencyById(
-                state,
-                action as ActionInterfaces.ISetSynthesizerFrequencyByIdAction
-            );
         case ActionTypes.SET_SYNTHESIZER_ATTACK_BY_ID:
             return reduceSetSynthesizerAttackById(
                 state,
