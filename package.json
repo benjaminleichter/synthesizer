@@ -1,0 +1,34 @@
+{
+  "name": "web_audio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "webpack --progress --colors --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/webaudioapi": "0.0.27",
+    "babel-polyfill": "6.23.0",
+    "fetch": "1.1.0",
+    "node": "0.0.0",
+    "react": "15.4.2",
+    "react-redux": "5.0.3",
+    "redux": "3.6.0",
+    "redux-thunk": "2.2.0",
+    "typescript": "2.3.2",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel-core": "6.24.0",
+    "babel-loader": "6.4.1",
+    "babel-plugin-transform-es2015-parameters": "6.23.0",
+    "babel-plugin-transform-es2015-spread": "6.22.0",
+    "babel-plugin-transform-object-rest-spread": "6.23.0",
+    "babel-preset-env": "1.2.2",
+    "babel-preset-es2015": "6.24.0",
+    "ts-loader": "2.0.2"
+  }
+}

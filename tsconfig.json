@@ -1,0 +1,30 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "allowJs": true,
+        "outDir": "target/",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es2015",
+        "jsx": "react",
+        "strictNullChecks": true,
+        "baseUrl": ".",
+        "typeRoots": [
+            "./node_modules/@types/"
+        ],
+        "types": [
+            "node"
+        ],
+        "traceResolution": true
+    },
+    "include": [
+        "typescript/**/*"
+    ],
+    "files": [
+        "./index.tsx"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
