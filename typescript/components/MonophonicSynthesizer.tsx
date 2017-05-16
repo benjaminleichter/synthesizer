@@ -36,23 +36,31 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
         };
 
         this.handleChangeFrequency = this.handleChangeFrequency.bind(this);
+        this.handleNoteOn = this.handleNoteOn.bind(this);
+        this.handleNoteOff = this.handleNoteOff.bind(this);
     }
     public componentWillMount() {
         const { gain, modulationDepth, oscillator } = this.props;
 
-        // Set carrier frequeny values
+        // Set carrier values
         this.state.carrier.frequency.value = oscillator.getFrequency();
         this.state.carrier.type = oscillator.getWaveform();
 
+        // Set modulator values
         this.state.modulator.frequency.value = oscillator.getGainModulationRate();
         this.state.modulator.type = 'sine';
 
+        // set gain values
         this.state.modulationGain.gain.value = modulationDepth;
+        this.state.carrierGain.gain.value = 0;
 
+        // connect nodes
         this.state.modulator.connect(this.state.modulationGain);
         this.state.modulationGain.connect(this.state.carrier.detune);
-        this.state.carrier.connect(this.audioContext.destination);
+        this.state.carrier.connect(this.carrierGain);
+        this.state.carrierGain.connect(this.audioContext.destination);
 
+        // start oscillators
         this.state.carrier.start(0);
         this.state.modulator.start(0);
     }
@@ -71,6 +79,10 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
                     onChange={ this.handleChangeFrequency }
                     value={ frequency }
                 />
+                <button
+                    onMouseDown={ () => this.handleNoteOn(10, 10, 0.5) }
+                    onMouseUp={ () => this.handleNoteOff(5) }
+                />
             </div>
         )
     }
@@ -78,7 +90,32 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
         const frequency = parseInt(event.target.value, 10);
         const carrier = this.state.carrier;
         carrier.frequency.value = frequency;
+
         this.setState({ carrier });
         this.props.setCarrierFrequency(frequency);
+    }
+
+    private handleNoteOn(attack : number, decay : number, sustain : number) {
+        const now = this.audioContext.currentTime;
+        const carrierGain = this.state.carrierGain;
+
+        carrierGain.gain.cancelScheduledValues(0);
+        carrierGain.gain.setValueAtTime(0, now);
+
+        carrierGain.gain.linearRampToValueAtTime(1, now + attack);
+        carrierGain.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+
+        this.setState({ carrierGain });
+    }
+    private handleNoteOff(release : number) {
+        const now = this.audioContext.currentTime;
+        const carrierGain = this.state.carrierGain;
+
+        carrierGain.gain.cancelScheduledValues(0);
+        carrierGain.gain.setValueAtTime(carrierGain.gain.value, now);
+
+        carrierGain.gain.linearRampToValueAtTime(0, now + release);
+
+        this.setState({ carrierGain });
     }
 }
