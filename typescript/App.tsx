@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 
+import { Envelope } from './models/classes/Envelope';
 import { Oscillator } from './models/classes/Oscillator';
 import { IMonophonicSynthesizer } from './models/interfaces/IMonophonicSynthesizer';
 
@@ -30,11 +31,18 @@ export class App extends React.Component<IConnectedApp, {}> {
                     synthesizer.oscillator.getFrequency(),
                     synthesizer.oscillator.getGainModulationRate(),
                     synthesizer.oscillator.getWaveform());
-                
+
+                const envelope = new Envelope(
+                    synthesizer.envelope.getAttack(),
+                    synthesizer.envelope.getDecay(),
+                    synthesizer.envelope.getSustain(),
+                    synthesizer.envelope.getRelease());
+
                 const setCarrierFrequency = (frequency : number) => this.handleSetSynthesizerFrequencyById(id, frequency);
                 return (
                     <MonophonicSynthesizer
                         key={ id }
+                        envelope={ envelope }
                         gain={ synthesizer.gain }
                         modulationDepth={ synthesizer.modulationDepth }
                         oscillator={ oscillator }

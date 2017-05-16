@@ -4,12 +4,14 @@ import { IMonophonicSynthesizerProps } from './components/MonophonicSynthesizer'
 import { IAction } from './models/IAction';
 
 import { Oscillator } from './models/classes/Oscillator';
+import { Envelope } from './models/classes/Envelope';
 
 import { ActionInterfaces, ActionTypes } from './actions';
 
 const initialState : IApp = {
     synthesizersById: {
         '1': {
+            envelope: new Envelope(1, 1, 0.5, 1),
             gain: 0.5,
             modulationDepth: 100,
             oscillator: new Oscillator(440, 0.5, 'sine'),

@@ -80,8 +80,8 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
                     value={ frequency }
                 />
                 <button
-                    onMouseDown={ () => this.handleNoteOn(10, 10, 0.5) }
-                    onMouseUp={ () => this.handleNoteOff(5) }
+                    onMouseDown={ this.handleNoteOn }
+                    onMouseUp={ this.handleNoteOff }
                 />
             </div>
         )
@@ -95,26 +95,28 @@ export class MonophonicSynthesizer extends React.Component<IMonophonicSynthesize
         this.props.setCarrierFrequency(frequency);
     }
 
-    private handleNoteOn(attack : number, decay : number, sustain : number) {
+    private handleNoteOn() {
         const now = this.audioContext.currentTime;
         const carrierGain = this.state.carrierGain;
+        const envelope = this.props.envelope;
 
         carrierGain.gain.cancelScheduledValues(0);
         carrierGain.gain.setValueAtTime(0, now);
 
-        carrierGain.gain.linearRampToValueAtTime(1, now + attack);
-        carrierGain.gain.linearRampToValueAtTime(sustain, now + attack + decay);
+        carrierGain.gain.linearRampToValueAtTime(1, now + envelope.getAttack());
+        carrierGain.gain.linearRampToValueAtTime(envelope.getSustain(), now + envelope.getAttack() + envelope.getDecay());
 
         this.setState({ carrierGain });
     }
-    private handleNoteOff(release : number) {
+    private handleNoteOff() {
         const now = this.audioContext.currentTime;
         const carrierGain = this.state.carrierGain;
+        const envelope = this.props.envelope;
 
         carrierGain.gain.cancelScheduledValues(0);
         carrierGain.gain.setValueAtTime(carrierGain.gain.value, now);
 
-        carrierGain.gain.linearRampToValueAtTime(0, now + release);
+        carrierGain.gain.linearRampToValueAtTime(0, now + envelope.getRelease());
 
         this.setState({ carrierGain });
     }
